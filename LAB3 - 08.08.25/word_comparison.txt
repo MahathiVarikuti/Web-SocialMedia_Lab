@@ -1,0 +1,65 @@
+Porter:
+data: 31
+model: 17
+learn: 11
+â: 10
+use: 9
+scienc: 8
+today: 7
+python: 6
+first: 5
+time: 5
+new: 5
+tri: 5
+clean: 4
+analysi: 4
+transform: 4
+accuraci: 4
+import: 4
+explain: 4
+part: 3
+one: 3
+
+Snowball:
+data: 31
+model: 17
+learn: 11
+â: 10
+use: 9
+scienc: 8
+today: 7
+python: 6
+first: 5
+time: 5
+new: 5
+tri: 5
+clean: 4
+analysi: 4
+transform: 4
+accuraci: 4
+import: 4
+explain: 4
+part: 3
+one: 3
+
+Lemmatized:
+datum: 19
+model: 16
+data: 12
+â: 10
+science: 8
+today: 7
+learn: 6
+python: 6
+use: 6
+learning: 5
+time: 5
+new: 5
+try: 5
+analysis: 4
+accuracy: 4
+cleaning: 3
+work: 3
+finally: 3
+transformer: 3
+important: 3
