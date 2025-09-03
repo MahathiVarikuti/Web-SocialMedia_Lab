@@ -6,66 +6,75 @@
 #TF-IDF term feq, 
 #info diff funcs
 #matrices in the form of graph 
-import nltk, pandas as pd
+# Import necessary libraries
+
 from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
-import string
+import nltk
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 nltk.download('punkt')
 
-text = """
-Artificial intelligence is transforming industries across the globe.
-From healthcare to finance, AI systems are improving efficiency and decision-making.
-Machine learning algorithms analyze vast datasets to uncover patterns and insights.
-Natural language processing allows computers to understand and generate human language.
-Robotics powered by AI are revolutionizing manufacturing and logistics.
-Ethical concerns around bias and transparency continue to shape AI development.
-Governments and organizations are investing heavily in AI research and innovation.
-Education systems are adapting to prepare students for an AI-driven future.
-The integration of AI into daily life raises questions about privacy and control.
-Despite challenges, the potential of AI to solve complex problems remains immense.
-"""
+docs = [
+    "Artificial intelligence is transforming industries by automating tasks and improving efficiency.",
+    "Machine learning models can identify patterns in data and make accurate predictions.",
+    "Natural language processing allows computers to understand and generate human language.",
+    "Big data analytics helps organizations make data-driven decisions and uncover hidden insights.",
+    "Cloud computing provides scalable resources and enables remote collaboration.",
+    "Cybersecurity is critical for protecting sensitive information and maintaining trust.",
+    "Internet of Things connects devices and enables smart environments.",
+    "Blockchain technology ensures transparency and security in digital transactions.",
+    "Augmented reality blends digital content with the physical world for immersive experiences.",
+    "Quantum computing promises to solve complex problems beyond the reach of classical computers."
+]
 
-docs = text.strip().split("\n")
+# calculate lexical diversity
+def lexical_diversity(text):
+    tokens = nltk.word_tokenize(text.lower())
+    return len(set(tokens)) / len(tokens)
 
-def clean(text): return [t for t in word_tokenize(text.lower()) if t not in string.punctuation]
+# 1. Lexical Diversity
+print("=== Lexical Diversity ===")
+for i, doc in enumerate(docs):
+    score = lexical_diversity(doc)
+    print(f"Doc {i+1}: {score:.2f}")
 
-def lexical(docs):
-    print("Lexical Diversity:")
-    for i, d in enumerate(docs):
-        t = clean(d)
-        print(f"Doc {i+1}: {len(set(t))/len(t):.2f} (Words: {len(t)})")
-lexical(docs)
+# 2. N-grams
+print("\n=== N-grams ===")
+for i, doc in enumerate(docs):
+    tokens = nltk.word_tokenize(doc.lower())
+    print(f"\nDoc {i+1}:")
+    for n in [1, 2, 3]:
+        ng_list = list(ngrams(tokens, n))
+        print(f"{n}-grams: {ng_list}")
 
-def ngram_show(docs):
-    print("\nN-grams:")
-    for i, d in enumerate(docs):
-        t = clean(d)
-        print(f"\nDoc {i+1}:")
-        print("Unigrams:", list(ngrams(t, 1)))
-        print("Bigrams:", list(ngrams(t, 2)))
-        print("Trigrams:", list(ngrams(t, 3)))
-ngram_show(docs)
+# 3. TF-IDF Matrix
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(docs)
+df = pd.DataFrame(X.toarray(), columns=vectorizer.get_feature_names_out())
 
-def tfidf_model(docs):
-    v = TfidfVectorizer(ngram_range=(1, 3), stop_words='english')
-    m = v.fit_transform(docs)
-    return m, v.get_feature_names_out()
-matrix, terms = tfidf_model(docs)
+print("\n=== TF-IDF Matrix ===")
+print(df.round(2))  # Rounded for readability
 
-def top_keywords(m, terms, n=5):
-    print("\nTop Keywords:")
-    for i in range(m.shape[0]):
-        row = m[i].toarray()[0]
-        top = row.argsort()[::-1][:n]
-        print(f"Doc {i+1}: {[terms[j] for j in top if row[j] > 0]}")
-top_keywords(matrix, terms)
+# 4. Top TF-IDF Terms per Document
+print("\n=== Top TF-IDF Terms per Document ===")
+for idx, row in df.iterrows():
+    top_terms = row.sort_values(ascending=False).head(3)
+    print(f"Doc {idx+1}:")
+    for term, score in top_terms.items():
+        print(f"  {term}: {score:.3f}")
 
-def show_tfidf_matrix(m, terms):
-    print("\nTF-IDF Matrix:")
-    df = pd.DataFrame(m.toarray(), columns=terms)
-    pd.set_option('display.max_columns', None)  # Show all columns
-    pd.set_option('display.width', None)        # Prevent line wrapping
-    print(df.round(2))                          # Round values for readability
-show_tfidf_matrix(matrix, terms)
+# 5. TF-IDF graph
+term_scores = df.sum(axis=0).sort_values(ascending=False).head(10)
+
+# Plot top 10 TF-IDF terms across all documents
+plt.figure(figsize=(10, 5))
+term_scores.plot(kind='bar', color='coral')
+plt.title("Top 10 TF-IDF Terms Across All Documents")
+plt.ylabel("Total TF-IDF Score")
+plt.xlabel("Terms")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
